@@ -1,6 +1,6 @@
-import { select, takeEvery } from 'redux-saga/effects'
+import { all, call, fork, select, takeEvery } from 'redux-saga/effects'
 
-import { loadFolio } from '../model/Folio'
+import { startFolioLoad } from '../model/Folio'
 import { putResolveAction } from '../model/ReduxStore'
 
 const justDocument = state => state.document
@@ -108,6 +108,54 @@ function* resolveDocumentManifest() {
   return null
 }
 
+function* storeFolioImage(id, image) {
+  try {
+    const tileSource = yield image
+    yield putResolveAction('DocumentActions.loadFolioImage', { id, tileSource })
+  }
+  catch (error) {
+    console.error(`Unable to load the image of ${id}`, error)
+  }
+}
+
+// Loads one page and stores each part as it arrives: the text first, the
+// image when the image server has described it.
+function* loadAndStoreFolio(id) {
+  const document = yield select(justDocument)
+  const folioData = document.folioIndex[id]
+  if (!folioData)
+    return
+  const { transcriptions, image } = startFolioLoad(folioData)
+  if (image)
+    yield fork(storeFolioImage, id, image)
+  if (!transcriptions)
+    return
+  try {
+    const loaded = yield transcriptions
+    yield putResolveAction('DocumentActions.loadFolio', { id, ...loaded, loading: false })
+  }
+  catch (error) {
+    console.error(`Unable to load the transcriptions of ${id}`, error)
+    yield putResolveAction('DocumentActions.loadFolio', { id, loading: false })
+  }
+}
+
+function* loadFoliosThenNeighbours(folioIDs) {
+  yield all(folioIDs.map(id => call(loadAndStoreFolio, id)))
+  // With the pages on screen shown, the ones a click away are fetched in
+  // the background, so turning the page finds them ready.
+  const { folios } = yield select(justDocument)
+  const neighbours = new Set()
+  for (const id of folioIDs) {
+    const index = folios.findIndex(folio => folio.id === id)
+    for (const near of [folios[index - 1], folios[index + 1]]) {
+      if (index >= 0 && near && !folioIDs.includes(near.id))
+        neighbours.add(near.id)
+    }
+  }
+  yield all([...neighbours].map(id => call(loadAndStoreFolio, id)))
+}
+
 function* resolveFolio(pathSegments) {
   const document = yield select(justDocument)
   if (document.loaded) {
@@ -130,14 +178,11 @@ function* resolveFolio(pathSegments) {
     if (thirdID && thirdID !== leftID && thirdID !== rightID)
       folioIDs.push(thirdID)
 
-    for (const folioID of folioIDs) {
-      const folioData = document.folioIndex[folioID]
-      if (folioData && !folioData.loading) {
-        // wait for folio to load and then advance state
-        const folio = yield loadFolio(folioData)
-        yield putResolveAction('DocumentActions.loadFolio', folio)
-      }
-    }
+    // Not waited for: navigation goes on while the pages arrive.
+    yield fork(
+      loadFoliosThenNeighbours,
+      folioIDs.filter(id => document.folioIndex[id]),
+    )
   }
 }
 

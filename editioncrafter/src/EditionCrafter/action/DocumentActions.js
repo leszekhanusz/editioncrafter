@@ -23,16 +23,30 @@ DocumentActions.loadTags = function loadTags(state, tags) {
   }
 }
 
-DocumentActions.loadFolio = function loadFolio(state, folio) {
-  const oldFolio = state.folioIndex[folio.id]
+// A page's transcriptions and its image arrive separately, in either order,
+// so what arrives is merged into the page rather than replacing it.
+function updateFolio(state, id, changes) {
+  const oldFolio = state.folioIndex[id]
+  if (!oldFolio)
+    return state
+  const folio = { ...oldFolio, ...changes }
   const folioIdx = state.folios.indexOf(oldFolio)
-  state.folios[folioIdx] = folio
-  state.folioIndex[folio.id] = folio
+  if (folioIdx >= 0)
+    state.folios[folioIdx] = folio
+  state.folioIndex[id] = folio
   state.folioByName[folio.name] = folio
 
   return {
     ...state,
   }
+}
+
+DocumentActions.loadFolio = function loadFolio(state, folio) {
+  return updateFolio(state, folio.id, folio)
+}
+
+DocumentActions.loadFolioImage = function loadFolioImage(state, { id, tileSource }) {
+  return updateFolio(state, id, { tileSource })
 }
 
 function createFolioIndex(folios) {

@@ -45,74 +45,85 @@ function getZoneTagData(annotations) {
   }
 }
 
-export async function loadFolio(folioData) {
-  if (folioData.loading) {
-    return folioData
+// Pages being loaded, by id: a page asked for twice — shown, then prefetched,
+// or prefetched, then shown — is fetched once.
+const pending = new Map()
+
+/** Whether a page's transcriptions are loaded. */
+export function hasTranscriptions(folioData) {
+  return Boolean(folioData.transcription) && !folioData.loading
+}
+
+function loadTileSource(folio) {
+  if (folio.image_zoom_url.endsWith('.json')) {
+    return fetch(folio.image_zoom_url)
+      .then(response => response.json())
+      .then(imageServerResponse => new OpenSeadragon.IIIFTileSource(imageServerResponse))
   }
+  return Promise.resolve(new OpenSeadragon.ImageTileSource({
+    type: 'image',
+    url: folio.image_zoom_url,
+  }))
+}
 
-  folioData.loading = true
-  const folio = { ...folioData }
-  const transcriptionTypes = Object.keys(folio.annotationURLs)
-  const transcriptionTypeTracker = Object.fromEntries(transcriptionTypes.map(t => [t, false]))
-
-  const isIIIF = folio.image_zoom_url.endsWith('.json')
-
-  if (isIIIF) {
-    const response = await fetch(folio.image_zoom_url)
-    const imageServerResponse = await response.json()
-    // Handle the image server response
-    folio.tileSource = new OpenSeadragon.IIIFTileSource(imageServerResponse)
-  }
-  else {
-    folio.tileSource = new OpenSeadragon.ImageTileSource({
-      type: 'image',
-      url: folio.image_zoom_url,
-    })
-  }
-
+async function loadTranscriptions(folio) {
   const { tagIds, zoneTagIndex } = getZoneTagData(folio.annotations)
-
-  folio.tagIds = [...tagIds]
-  folio.zoneTagIndex = { ...zoneTagIndex }
-
-  if (transcriptionTypes.length > 0) {
-    for await (const transcriptionType of transcriptionTypes) {
-      const { htmlURL, xmlURL } = folio.annotationURLs[transcriptionType]
-      if (!folio.transcription)
-        folio.transcription = {}
-      folio.transcription[transcriptionType] = {}
-
-      try {
-        const htmlURLResponse = await fetch(htmlURL)
-        const xmlURLResponse = await fetch(xmlURL)
-        const html = await htmlURLResponse.text()
-        const xml = await xmlURLResponse.text()
-        const tagIds = getTagIds(html)
-        const transcription = parseTranscription(html, xml)
-        if (!transcription) {
-          throw new Error(`Unable to load transcription: ${htmlURL}`)
-        }
-        else {
-          folio.transcription[transcriptionType] = transcription
-          folio.tagIds = [...folio.tagIds, ...tagIds]
-          folio.loading = false
-          transcriptionTypeTracker[transcriptionType] = true
-        }
-      }
-      catch (error) {
-        folioData.loading = false
-        throw error
-      }
-    }
-
-    // Once all transcription types have been fetched
-    if (Object.values(transcriptionTypeTracker).filter(v => !v).length === 0) {
-      return folio
-    }
+  const transcriptionTypes = Object.keys(folio.annotationURLs)
+  // Every file of every transcription type at once: one after the other,
+  // the six files of a three-type edition took over a second.
+  const loaded = await Promise.all(transcriptionTypes.map(async (transcriptionType) => {
+    const { htmlURL, xmlURL } = folio.annotationURLs[transcriptionType]
+    const [html, xml] = await Promise.all([
+      fetch(htmlURL).then(response => response.text()),
+      fetch(xmlURL).then(response => response.text()),
+    ])
+    const transcription = parseTranscription(html, xml)
+    if (!transcription)
+      throw new Error(`Unable to load transcription: ${htmlURL}`)
+    return { transcriptionType, transcription, tagIds: getTagIds(html) }
+  }))
+  const transcription = {}
+  const allTagIds = [...tagIds]
+  for (const item of loaded) {
+    transcription[item.transcriptionType] = item.transcription
+    allTagIds.push(...item.tagIds)
   }
+  return {
+    transcription,
+    tagIds: allTagIds,
+    zoneTagIndex: { ...zoneTagIndex },
+  }
+}
 
-  folio.loading = false
-  return folio
+/**
+ * Starts loading a page, as two independent parts: its transcriptions, and
+ * the tile source of its image. The text does not wait for the image server
+ * to describe the image; each part is stored as soon as it arrives.
+ *
+ * `transcriptions` is null when they are already loaded, `image` when the
+ * tile source is. Both are shared by every caller while the page loads.
+ */
+export function startFolioLoad(folioData) {
+  const running = pending.get(folioData.id)
+  if (running)
+    return running
+  const load = {
+    transcriptions: hasTranscriptions(folioData)
+      ? null
+      : loadTranscriptions(folioData),
+    image: folioData.tileSource ? null : loadTileSource(folioData),
+  }
+  if (!load.transcriptions && !load.image)
+    return load
+  // Shown as loading at once, as before: the transcription pane tells a page
+  // still on its way from one that has no transcription.
+  if (load.transcriptions)
+    folioData.loading = true
+  pending.set(folioData.id, load)
+  Promise.allSettled([load.transcriptions, load.image]).then(() => {
+    pending.delete(folioData.id)
+  })
+  return load
 }
 
 // returns transcription or error message if unable to parse

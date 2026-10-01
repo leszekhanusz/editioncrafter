@@ -4,12 +4,12 @@ import { createReducer } from '../model/ReduxStore'
 import DiplomaticActions from './DiplomaticActions'
 import DocumentActions from './DocumentActions'
 import GlossaryActions from './GlossaryActions'
-import NotesActions from './NotesActions'
-
 import diplomaticInitialState from './initialState/diplomaticInitialState'
+
 import documentInitialState from './initialState/documentInitialState'
 import glossaryInitialState from './initialState/glossaryInitialState'
 import notesInitialState from './initialState/notesInitialState'
+import NotesActions from './NotesActions'
 
 export default function rootReducer(config) {
   const {

@@ -1,8 +1,5 @@
-import { Box, Button, ButtonGroup, Collapse, Divider, IconButton, Typography } from '@material-ui/core'
-import { red } from '@material-ui/core/colors'
+import { Box, Button, Collapse, Divider, IconButton, Typography } from '@material-ui/core'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import GridOnIcon from '@material-ui/icons/GridOn'
-import ListIcon from '@material-ui/icons/List'
 import TuneIcon from '@material-ui/icons/Tune'
 import { useEffect, useMemo, useState } from 'react'
 

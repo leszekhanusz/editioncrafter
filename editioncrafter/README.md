@@ -151,7 +151,6 @@ By default, Storybook doesn't display the hash routing params used by `react-rou
 
 ![screenshot of new tab button](newtab.png)
 
-
 ## Developer Note: Publishing a Beta Release
 
 To publish editioncrafter or editioncrafter-umd to the beta channel, update the package.json version number to the correct beta version (such as '1.3.0-beta.1') and then run this command in the edtioncrafter and editioncrafter-umd directories:

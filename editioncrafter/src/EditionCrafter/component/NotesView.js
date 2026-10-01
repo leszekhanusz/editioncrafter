@@ -1,21 +1,20 @@
-import { Typography } from '@material-ui/core'
 import React, { Component } from 'react'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { connect } from 'react-redux'
+import remarkGfm from 'remark-gfm'
 import Navigation from './Navigation'
 
 class NotesView extends Component {
-    constructor() {
-        super()
-        this.state = { filterTerm: '' }
-    }
+  constructor() {
+    super()
+    this.state = { filterTerm: '' }
+  }
 
-    onFilterChange = (event) => {
-        const filterTerm = event.target.value
-        this.setState({ ...this.state, filterTerm })
-    }
-    
+  onFilterChange = (event) => {
+    const filterTerm = event.target.value
+    this.setState({ ...this.state, filterTerm })
+  }
+
   render() {
     if (!this.props.notes.loaded)
       return null
@@ -32,7 +31,7 @@ class NotesView extends Component {
 
         <div id="notesViewInner">
           <div id="notesContent">
-            <ReactMarkdown children={this.props.notes.notes} remarkPlugins={[remarkGfm]}/>
+            <ReactMarkdown children={this.props.notes.notes} remarkPlugins={[remarkGfm]} />
           </div>
         </div>
 

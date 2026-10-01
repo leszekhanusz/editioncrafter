@@ -1,0 +1,61 @@
+// Words of a transcription that the glossary explains. A site restyles them
+// through these classes: `.glossary-term` for the word, `.glossary-tooltip`
+// for the explanation shown while it is hovered or focused.
+.editioncrafter {
+	.glossary-term {
+		position: relative;
+		border-bottom: 1px dotted #6b5b95;
+		cursor: help;
+
+		&:hover > .glossary-tooltip,
+		&:focus > .glossary-tooltip {
+			display: block;
+		}
+
+		&:focus {
+			outline: 1px solid #6b5b95;
+			outline-offset: 1px;
+		}
+	}
+
+	.glossary-tooltip {
+		display: none;
+		// Placed against the window when shown, so the pane cannot clip it.
+		position: fixed;
+		z-index: 1000;
+		top: 0;
+		left: 0;
+		width: max-content;
+		max-width: min(24rem, 80vw);
+		padding: 0.5rem 0.65rem;
+		color: #2b2b2b;
+		border: 1px solid #c9bfa6;
+		border-radius: 0.35rem;
+		background: #fffdf6;
+		box-shadow: 0 6px 18px rgb(0 0 0 / 18%);
+		font: normal normal 400 0.85rem/1.45 sans-serif;
+		letter-spacing: normal;
+		text-align: left;
+		text-decoration: none;
+		text-indent: 0;
+		text-transform: none;
+		white-space: normal;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	.glossary-tooltip-headword {
+		display: block;
+		margin-bottom: 0.15rem;
+		font-weight: 700;
+	}
+
+	.glossary-tooltip-meaning {
+		display: block;
+		white-space: pre-line;
+	}
+
+	.glossary-tooltip-pos {
+		font-style: italic;
+	}
+}

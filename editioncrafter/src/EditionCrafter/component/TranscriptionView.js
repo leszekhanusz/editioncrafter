@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import TagFilterContext from '../context/TagFilterContext'
 import EditorComment from './EditorComment'
 import ErrorBoundary from './ErrorBoundary'
+import { glossaryIndex, withGlossaryTerms } from './GlossaryTerms'
 import MediaPlayer from './MediaPlayer'
 import Navigation from './Navigation'
 import Pagination from './Pagination'
@@ -50,9 +51,31 @@ function handleTags(domNode, selectedTags) {
   return domNode
 }
 
-function htmlToReactParserOptions(selectedZone, selectedTags) {
+// Text whose words are not looked up in the glossary: notes are shown by
+// their own component from their raw text.
+const NO_GLOSSARY = new Set(['tei-note', 'script', 'style'])
+
+function insideNoGlossary(domNode) {
+  for (let node = domNode.parent; node; node = node.parent) {
+    if (NO_GLOSSARY.has(node.name))
+      return true
+  }
+  return false
+}
+
+function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
+  let textCount = 0
   const parserOptions = {
     replace(domNode) {
+      // Words the glossary knows are wrapped so that hovering them shows
+      // their part of speech and meaning.
+      if (domNode.type === 'text') {
+        if (!glossary || insideNoGlossary(domNode))
+          return undefined
+        textCount += 1
+        const nodes = withGlossaryTerms(domNode.data, glossary, `gloss-${textCount}`)
+        return nodes ? <>{nodes}</> : undefined
+      }
       switch (domNode.name) {
         case 'div': {
           domNode = handleTags(domNode, selectedTags)
@@ -172,7 +195,11 @@ function TranscriptionView(props) {
   }
 
   // Configure parser to replace certain tags with components
-  const htmlToReactParserOptionsSide = htmlToReactParserOptions(searchParams.get('zone'), tags)
+  const htmlToReactParserOptionsSide = htmlToReactParserOptions(
+    searchParams.get('zone'),
+    tags,
+    glossaryIndex(props.glossary?.glossary),
+  )
   const html = transcriptionData && transcriptionData.html
   const layout = transcriptionData && transcriptionData.layout
 
@@ -253,6 +280,7 @@ function mapStateToProps(state) {
   return {
     annotations: state.annotations,
     document: state.document,
+    glossary: state.glossary,
   }
 }
 

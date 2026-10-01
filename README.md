@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.4
+
+- **Glossary terms in the text**: in every transcription, a word or phrase that the glossary knows — as a headword or an alternate spelling, whatever its case — can be hovered (or focused with the keyboard) to show its part of speech and meaning in a tooltip, kept within the window. The word is wrapped in a `span.glossary-term` holding a `span.glossary-tooltip` (with `.glossary-tooltip-headword`, `.glossary-tooltip-meaning` and `.glossary-tooltip-pos` inside), so a site can restyle both; by default the word has a dotted underline. Text inside notes is left alone.
+
 ### 1.3.1-media.3
 
 - **Glossary**: a heading for each letter of the alphabet, whatever letter the glossary starts with and whether or not its headwords are capitalised (headwords are sorted, accents and case aside).

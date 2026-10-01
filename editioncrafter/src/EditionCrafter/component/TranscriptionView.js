@@ -1,9 +1,11 @@
+import { domToReact } from 'html-react-parser'
 import React, { useContext } from 'react'
 import { connect } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import TagFilterContext from '../context/TagFilterContext'
 import EditorComment from './EditorComment'
 import ErrorBoundary from './ErrorBoundary'
+import MediaPlayer from './MediaPlayer'
 import Navigation from './Navigation'
 import Pagination from './Pagination'
 import Parser from './Parser'
@@ -92,6 +94,22 @@ function htmlToReactParserOptions(selectedZone, selectedTags) {
               <img src={src} alt={desc || ''} className="inline-image" />
               { desc ? <figcaption>{desc}</figcaption> : null }
             </figure>
+          )
+        }
+        case 'tei-media': {
+          const url = domNode.attribs?.url?.trim()
+          if (!url) {
+            return domNode
+          }
+
+          // The element keeps its place, for stylesheets to select; its
+          // description is parsed like any other transcription content.
+          return (
+            <tei-media data-origname="media">
+              <MediaPlayer url={url} mimeType={domNode.attribs.mimetype?.trim()}>
+                {domToReact(domNode.children, parserOptions)}
+              </MediaPlayer>
+            </tei-media>
           )
         }
 

@@ -210,4 +210,83 @@
 		margin: auto;
 		text-align: center;
 	}
+
+	// A TEI <media>: a button where it stands in the text, which opens the
+	// video (or audio) as a block, its description under it.
+	.media-player {
+		display: inline-block;
+		margin: 0 0.15em;
+		vertical-align: middle;
+
+		&[open] {
+			display: block;
+			margin: 0.75rem 0;
+		}
+
+		> summary {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35em;
+			padding: 0.15em 0.5em;
+			color: #244a68;
+			border: 1px solid #9ab5ca;
+			border-radius: 0.4em;
+			background: #eaf2f8;
+			font: 0.8rem/1.5 sans-serif;
+			list-style: none;
+			cursor: pointer;
+			user-select: none;
+
+			&::-webkit-details-marker {
+				display: none;
+			}
+
+			&:hover {
+				color: #fff;
+				border-color: #3978a6;
+				background: #3978a6;
+			}
+
+			svg {
+				width: 1.1em;
+				height: 1.1em;
+			}
+
+			&::after {
+				content: '';
+				border: 0.32em solid transparent;
+				border-top-color: currentColor;
+				border-bottom-width: 0;
+				transition: transform 0.15s;
+			}
+		}
+
+		&[open] > summary::after {
+			transform: rotate(180deg);
+		}
+
+		> video,
+		> audio {
+			display: block;
+			width: 100%;
+			margin-top: 0.5rem;
+		}
+
+		> video {
+			max-height: 75vh;
+			background: #000;
+		}
+
+		tei-desc {
+			display: block;
+			margin-top: 0.35rem;
+			color: #5d574c;
+			font-size: 0.85em;
+			font-style: italic;
+
+			&:empty {
+				display: none;
+			}
+		}
+	}
 }

@@ -211,6 +211,39 @@ function Navigation(props) {
     ? document.folioByName[folioName]
     : null
 
+  // The pane's page, whose transcription types the list offers. A pane
+  // opened on the glossary from the grid has none.
+  const paneFolio = document.folios.find(fol => fol.id === documentView[side].iiifShortID)
+  const typeLabel = ttKey => (document.variorum
+    ? document.transcriptionTypes[paneFolio?.doc_id]?.[ttKey]
+    : document.transcriptionTypes[ttKey])
+  const typeSelect = (
+    <Select
+      className={selectClass}
+      style={{ ...selectColorStyle, marginRight: 15, fontSize: 'max(16px, 1rem)' }}
+      value={documentView[side].transcriptionType}
+      id="doc-type"
+      onClick={changeType}
+    >
+      {Object.keys(paneFolio?.annotationURLs ?? {}).map(ttKey => (
+        <MenuItem value={ttKey} key={ttKey}>{typeLabel(ttKey)}</MenuItem>
+      ))}
+      <MenuItem value="f" key="f">
+        {DocumentHelper.transcriptionTypeLabels.f}
+      </MenuItem>
+      { props.glossary && (
+        <MenuItem value="glossary" key="glossary">
+          {DocumentHelper.transcriptionTypeLabels.glossary}
+        </MenuItem>
+      ) }
+      { props.notes && (
+        <MenuItem value="notes" key="notes">
+          {DocumentHelper.transcriptionTypeLabels.notes}
+        </MenuItem>
+      )}
+    </Select>
+  )
+
   const docHasTags = useMemo(
     () => folio?.tagIds && folio.tagIds.length > 0 && document.tags && Object.keys(document.tags).length > 0,
     [folio, document],
@@ -294,30 +327,7 @@ function Navigation(props) {
 
                   <div className="vertical-separator" />
 
-                  <Select
-                    className={selectClass}
-                    style={{ ...selectColorStyle, marginRight: 15, fontSize: 'max(16px, 1rem)' }}
-                    value={documentView[side].transcriptionType}
-                    id="doc-type"
-                    onClick={changeType}
-                  >
-                    {Object.keys(props.document.folios.find(fol => (fol.id === props.documentView[props.side].iiifShortID)).annotationURLs).map(ttKey => (
-                      <MenuItem value={ttKey} key={ttKey}>{props.document.variorum ? props.document.transcriptionTypes[props.document.folios.find(fol => (fol.id === props.documentView[props.side].iiifShortID)).doc_id][ttKey] : props.document.transcriptionTypes[ttKey]}</MenuItem>
-                    ))}
-                    <MenuItem value="f" key="f">
-                      {DocumentHelper.transcriptionTypeLabels.f}
-                    </MenuItem>
-                    { props.glossary && (
-                      <MenuItem value="glossary" key="glossary">
-                        {DocumentHelper.transcriptionTypeLabels.glossary}
-                      </MenuItem>
-                    ) }
-                    { props.notes && (
-                      <MenuItem value="notes" key="notes">
-                        {DocumentHelper.transcriptionTypeLabels.notes}
-                      </MenuItem>
-                    )}
-                  </Select>
+                  {typeSelect}
                   {!imageViewActive && (
                     <ToggleButton
                       onClick={toggleXMLMode}
@@ -359,7 +369,20 @@ function Navigation(props) {
 
               </div>
             )
-          : (<AlphabetLinks onFilterChange={onFilterChange} value={props.value} />)}
+          : (
+              // The glossary keeps the resource list: without it, nothing
+              // led back to the transcriptions but the browser's Back.
+              <div className="breadcrumbs glossary-toolbar">
+                <AlphabetLinks
+                  onFilterChange={onFilterChange}
+                  value={props.value}
+                  letters={props.glossaryLetters}
+                />
+                <div className="toolbar-side toolbar-right">
+                  {typeSelect}
+                </div>
+              </div>
+            )}
 
       </div>
       {openTags && (
@@ -401,7 +424,13 @@ function Navigation(props) {
 
               </div>
             )
-          : (<AlphabetLinks onFilterChange={onFilterChange} value={props.value} />)}
+          : (
+              <AlphabetLinks
+                onFilterChange={onFilterChange}
+                value={props.value}
+                letters={props.glossaryLetters}
+              />
+            )}
 
         <div id="doc-type-help" style={selectContainerStyle} ref={helpRefNarrow}>
           <Select
@@ -411,8 +440,8 @@ function Navigation(props) {
             id="doc-type"
             onClick={changeType}
           >
-            {Object.keys(props.document.folios.find(fol => (fol.id === props.documentView[props.side].iiifShortID)).annotationURLs).map(ttKey => (
-              <MenuItem value={ttKey} key={ttKey} title={ttKey}>{props.document.variorum ? props.document.transcriptionTypes[props.document.folios.find(fol => (fol.id === props.documentView[props.side].iiifShortID)).doc_id][ttKey] : props.document.transcriptionTypes[ttKey]}</MenuItem>
+            {Object.keys(paneFolio?.annotationURLs ?? {}).map(ttKey => (
+              <MenuItem value={ttKey} key={ttKey} title={ttKey}>{typeLabel(ttKey)}</MenuItem>
             ))}
             <MenuItem value="f" key="f">
               {DocumentHelper.transcriptionTypeLabels.f}

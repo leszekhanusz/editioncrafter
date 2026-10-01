@@ -1,21 +1,53 @@
 import React, { Component } from 'react'
-import { Link } from 'react-scroll'
 
-export const alpha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'Z']
+export const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
+/**
+ * The letter a glossary headword is filed under: its first letter, without
+ * accent and in capitals, so that "cambiamento" and "Écu" go under C and E.
+ */
+export function initialOf(headWord) {
+  return (headWord ?? '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .trim()
+    .charAt(0)
+    .toUpperCase()
+}
 
 export default class AlphabetLinks extends Component {
+  // The heading is looked for in the glossary this bar belongs to: both
+  // panes may show the glossary at once.
+  scrollTo = (event, letter) => {
+    const view = event.currentTarget.closest('#glossaryView')
+    const heading = view?.querySelector(`[data-glossary-letter="${letter}"]`)
+    heading?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   renderAlphaLinks() {
-    const letterLinks = []
-    for (let i = 0; i < alpha.length; i++) {
-      const letter = alpha[i]
-      const alphaID = `alpha-${i}`
-      letterLinks.push(
-        <span key={`link-${alphaID}`}>
-          <Link to={alphaID} offset={-120} containerId="glossaryViewInner" smooth="true">{letter}</Link>
+    const { letters } = this.props
+    const letterLinks = alpha.map((letter) => {
+      // A letter no headword starts with has nothing to go to.
+      const present = !letters || letters.includes(letter)
+      return (
+        <span key={`link-${letter}`}>
+          {present
+            ? (
+                <a
+                  href={`#alpha-${letter}`}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    this.scrollTo(event, letter)
+                  }}
+                >
+                  {letter}
+                </a>
+              )
+            : <span className="alpha-absent">{letter}</span>}
           {' '}
-        </span>,
+        </span>
       )
-    }
+    })
 
     return (
       <div style={{ display: 'inline' }}>
@@ -24,7 +56,7 @@ export default class AlphabetLinks extends Component {
           className="searchBox"
           placeholder="Filter by Entry"
           onChange={this.props.onFilterChange}
-          value={this.props.filterTerm}
+          value={this.props.value}
         />
 
         <div className="alphaNav">

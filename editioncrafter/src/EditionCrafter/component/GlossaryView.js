@@ -3,7 +3,7 @@ import Parser from 'html-react-parser'
 import React, { Component } from 'react'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
-import { alpha } from './AlphabetLinks'
+import { initialOf } from './AlphabetLinks'
 import Navigation from './Navigation'
 
 class GlossaryView extends Component {
@@ -15,7 +15,7 @@ class GlossaryView extends Component {
   renderGlossary() {
     const { glossary } = this.props.glossary
     const filterTerm = this.state.filterTerm.toLowerCase()
-    const entryList = Object.values(glossary.entries)
+    const entryList = sortedEntries(glossary)
 
     const checkHeadwords = (headword, term, delimiter) => {
       const words = headword.split(delimiter)
@@ -28,21 +28,29 @@ class GlossaryView extends Component {
 
     // {head-word}, {alternate-spelling}: {meaning-number}. {part-of-speech} {meaning} [{references}]
     const glossaryEntries = []
-    let alphaIndex = 0
+    let currentLetter = null
 
     for (const entry of entryList) {
-      // render alphabetic header if we have started the next letter
-      if (filterTerm.length === 0 && entry.headWord[0] === alpha[alphaIndex]) {
-        const alphaHeadingID = `alpha-${alphaIndex}`
+      // A heading wherever the initial changes. The entries are sorted, but
+      // a glossary may start at any letter and need not capitalise its
+      // headwords: matching them against an alphabet walked from A, and in
+      // capitals, gave a glossary without an A word no heading at all.
+      const letter = initialOf(entry.headWord)
+      if (filterTerm.length === 0 && letter && letter !== currentLetter) {
+        currentLetter = letter
         glossaryEntries.push(
-          <Typography variant="h4" key={`gloss-heading-${alpha[alphaIndex]}`} id={alphaHeadingID}>
+          <Typography
+            variant="h4"
+            key={`gloss-heading-${letter}`}
+            id={`alpha-${letter}`}
+            data-glossary-letter={letter}
+          >
             &mdash;
-            {alpha[alphaIndex]}
+            {letter}
             {' '}
             &mdash;
           </Typography>,
         )
-        alphaIndex++
       }
       const lowerCaseHeadword = entry.headWord.toLowerCase()
 
@@ -89,7 +97,7 @@ class GlossaryView extends Component {
 
   onFilterChange = (event) => {
     const filterTerm = event.target.value
-    this.setState({ ...this.state, filterTerm })
+    this.setState({ filterTerm })
   }
 
   render() {
@@ -102,6 +110,13 @@ class GlossaryView extends Component {
           side={this.props.side}
           onFilterChange={this.onFilterChange}
           value={this.state.filterTerm}
+          glossaryLetters={[
+            ...new Set(
+              sortedEntries(this.props.glossary.glossary).map(entry =>
+                initialOf(entry.headWord),
+              ),
+            ),
+          ]}
           documentView={this.props.documentView}
           documentViewActions={this.props.documentViewActions}
         />
@@ -141,6 +156,13 @@ class GlossaryView extends Component {
       </div>
     )
   }
+}
+
+/** The glossary's entries in alphabetical order, whatever the file's order. */
+function sortedEntries(glossary) {
+  return Object.values(glossary.entries ?? {}).sort((left, right) =>
+    left.headWord.localeCompare(right.headWord, undefined, { sensitivity: 'base' }),
+  )
 }
 
 function renderMeanings(entry) {

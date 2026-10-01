@@ -57,6 +57,26 @@
 			color: blue;
 			display: inline;
 		}
+
+		// The letters on the left and the resource list on the right, which
+		// the glossary keeps so the reader can leave it.
+		.glossary-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+
+			.glossaryNav {
+				flex: 1;
+				min-width: 0;
+			}
+		}
+
+		// A letter no headword starts with: shown, so the alphabet reads
+		// whole, but nothing to go to.
+		.alpha-absent {
+			color: #b5b5b5;
+		}
 	
 		.title {
 			white-space: nowrap;

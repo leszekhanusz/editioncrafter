@@ -1,20 +1,56 @@
 [![DOI](https://zenodo.org/badge/574677398.svg)](https://zenodo.org/badge/latestdoi/574677398)
 
 # EditionCrafter
+
+> **This is a fork of [EditionCrafter](https://github.com/cu-mkp/editioncrafter)**, published on npm as [`@leszekhanusz/editioncrafter`](https://www.npmjs.com/package/@leszekhanusz/editioncrafter). It follows the upstream project and adds the improvements listed below. Its versions are upstream's with a `-media.N` suffix: `1.3.1-media.3` is upstream `1.3.1` with this fork's changes up to its third release.
+
 EditionCrafter is an easy-to-use tool for scholars, educators, and research institutions to publish digital editions in a low-cost and sustainable manner. It can be included in a React app or a HTML website. Please see the [EditionCrafter User's Guide](https://editioncrafter.org/guide/) for installation instructions and documentation. 
+
+## Improvements over upstream EditionCrafter
+
+### 1.3.1-media.3
+
+- **Glossary**: a heading for each letter of the alphabet, whatever letter the glossary starts with and whether or not its headwords are capitalised (headwords are sorted, accents and case aside).
+- **Glossary**: the "Go to" letters scroll to their heading; letters no entry starts with are greyed out, and the alphabet includes W, X and Y.
+- **Glossary**: the resource list stays in the toolbar while the glossary is shown, so the reader can go back to a transcription without the browser's Back button.
+
+### 1.3.1-media.2
+
+- **Faster page turns**: all the files of a page are fetched at once; the text is shown without waiting for the image server; pages already loaded are not fetched again; and the previous and next pages are loaded in the background. Turning a page of a three-layer edition went from about 1.3 s to about 60 ms.
+
+### 1.3.1-media.1
+
+- **Video and audio**: a TEI `<media>` element with a `url` is shown where it stands in the transcription as a small button with a film icon (a speaker for an `audio/*` `mimeType`). Clicking it opens the media as a block, with the browser's own controls (fullscreen included) and the element's `<desc>` under it; clicking again closes it and pauses playback.
+
+### Development
+
+- `sass` and `eslint-plugin-react-refresh` are declared as dev dependencies, so a fresh `npm ci` can build the package and run ESLint.
+- ESLint leaves the generated sample editions in `static/` alone.
 
 ## EditionCrafter in a React App
 
 If you are including EditionCrafter in a React app, add this module to your project:
 
 ```
-npm add @cu-mkp/editioncrafter
+npm add @leszekhanusz/editioncrafter
+```
+
+and import it under that name:
+
+```jsx
+import EditionCrafter from '@leszekhanusz/editioncrafter'
+```
+
+A project that already uses upstream EditionCrafter can switch to this fork without changing its imports, by installing it under the upstream name:
+
+```
+npm add @cu-mkp/editioncrafter@npm:@leszekhanusz/editioncrafter
 ```
 
 The reference section below details all of the props of the EditionCrafter component. Here is an example of use:
 
 ```jsx
-import EditionCrafter from '@cu-mkp/editioncrafter'
+import EditionCrafter from '@leszekhanusz/editioncrafter'
 
 <EditionCrafter
   documentName='BnF Ms. Fr. 640'
@@ -29,6 +65,8 @@ import EditionCrafter from '@cu-mkp/editioncrafter'
 ```
 
 ## EditionCrafter in an HTML Website
+
+> **Note:** this fork publishes the React component only. The `@cu-mkp/editioncrafter-umd` script below is upstream's, so an HTML page that loads it does not get this fork's improvements; use the React component, for example in an Astro site, to get them.
 
 To include EditionCrafter in your HTML website, you need to create a `div` somewhere on your page, assign it an ID and then pass that ID to EditionCrafter. The reference section details the options for EditionCrafter, which are otherwise the same as the React component. Here is an example of use:
 
@@ -73,8 +111,9 @@ By default, Storybook doesn't display the hash routing params used by `react-rou
 
 ## Releasing a new version
 
-1. Bump the package numbers in `editioncrafter/package.json` and `editioncrafter-umd/package.json`.
-2. In the root level of the repo, run `npm run build` to make sure all changes are reflected in the `package-lock.json` files.
-3. Commit these changes to `dev`, then merge `dev` into `main`.
-4. Create a new GitHub [release](https://github.com/cu-mkp/editioncrafter/releases) pointing to `main` with a version tag matching what you chose in step 1. Make sure to include a list of changes.
-5. The GitHub workflow will run automatically to publish the packages. Make sure that [editioncrafter](https://www.npmjs.com/package/@cu-mkp/editioncrafter) and [editioncrafter-umd](https://www.npmjs.com/package/@cu-mkp/editioncrafter-umd) have been successfully published.
+1. Bump the version in `editioncrafter/package.json` (and its `package-lock.json`) to the next `-media.N`.
+2. Add the release's changes to the [list of improvements](#improvements-over-upstream-editioncrafter) above.
+3. From `editioncrafter/`, run `npm publish --tag latest`. It builds the package first; a version with a `-media.N` suffix is a pre-release for npm, which therefore asks for the tag explicitly.
+4. A newly published version can take a few minutes before npm serves it.
+
+The GitHub workflow that publishes on a release is upstream's: it publishes the `@cu-mkp` packages and is not used by this fork.

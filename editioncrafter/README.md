@@ -3,6 +3,8 @@
 # editioncrafter
 Software for the development of EditionCrafter, digital critical edition publication tool
 
+> **This is a fork of [EditionCrafter](https://github.com/cu-mkp/editioncrafter)**, published on npm as [`@leszekhanusz/editioncrafter`](https://www.npmjs.com/package/@leszekhanusz/editioncrafter). It follows the upstream project and adds [these improvements](https://github.com/leszekhanusz/editioncrafter#improvements-over-upstream-editioncrafter). Its versions are upstream's with a `-media.N` suffix: `1.3.1-media.3` is upstream `1.3.1` with this fork's changes up to its third release.
+
 EditionCrafter can be included in a React app or a HTML website. EditionCrafter should work on any content management system (CMS) where you can edit the HTML of your page. We have tested it on Hugo CMS, Astro Framework, and Scalar CMS. We also have an example Hugo website that you can fork. Please see that website's [README](https://github.com/cu-mkp/editioncrafter-project) for more information.
 
 ## EditionCrafter in a React App
@@ -10,13 +12,25 @@ EditionCrafter can be included in a React app or a HTML website. EditionCrafter 
 If you are including EditionCrafter in a React app, add this module to your project:
 
 ```
-npm add @cu-mkp/editioncrafter
+npm add @leszekhanusz/editioncrafter
+```
+
+and import it under that name:
+
+```jsx
+import EditionCrafter from '@leszekhanusz/editioncrafter'
+```
+
+A project that already uses upstream EditionCrafter can switch to this fork without changing its imports, by installing it under the upstream name:
+
+```
+npm add @cu-mkp/editioncrafter@npm:@leszekhanusz/editioncrafter
 ```
 
 The reference section below details all of the props of the EditionCrafter component. Here is an example of use:
 
 ```jsx
-import EditionCrafter from '@cu-mkp/editioncrafter'
+import EditionCrafter from '@leszekhanusz/editioncrafter'
 
 <EditionCrafter
   documentName="BnF Ms. Fr. 640"
@@ -30,6 +44,8 @@ import EditionCrafter from '@cu-mkp/editioncrafter'
 ```
 
 ## EditionCrafter in an HTML Website
+
+> **Note:** this fork publishes the React component only. The `@cu-mkp/editioncrafter-umd` script below is upstream's, so an HTML page that loads it does not get this fork's improvements; use the React component, for example in an Astro site, to get them.
 
 To include EditionCrafter in your HTML website, you need to create a `div` somewhere on your page, assign it an ID and then pass that ID to EditionCrafter. The reference section details the options for EditionCrafter, which are otherwise the same as the React component. Here is an example of use:
 
@@ -151,8 +167,6 @@ By default, Storybook doesn't display the hash routing params used by `react-rou
 
 ![screenshot of new tab button](newtab.png)
 
-## Developer Note: Publishing a Beta Release
+## Developer Note: Publishing a Release
 
-To publish editioncrafter or editioncrafter-umd to the beta channel, update the package.json version number to the correct beta version (such as '1.3.0-beta.1') and then run this command in the edtioncrafter and editioncrafter-umd directories:
-
-```npm publish --tag beta```
+See [Releasing a new version](https://github.com/leszekhanusz/editioncrafter#releasing-a-new-version) in the repository's README.

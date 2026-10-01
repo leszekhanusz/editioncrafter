@@ -9,6 +9,8 @@ export default antfu({
     'config/',
     'coverage/',
     'styles/',
+    // Sample editions: generated data, not source.
+    'static/',
   ],
   rules: {
     'react/prefer-destructuring-assignment': ['off'],

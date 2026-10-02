@@ -416,37 +416,53 @@
             color: #6F747C;
       }
 
-      .closeX { 
-            float: right;
-            padding: 3px;
-            font-style: bold;
-            &:hover {
-                  cursor: pointer;
-            }
-      }
-      
-      .helpContainer .MuiListItem-root {
-            display: flex;
-            gap: 10px;
-          }
-      
       .helpContainer {
-            padding:12px;
-            width:335px;
-            height: min(600px, calc(100vh - 40px));
-            position: relative;
-            top: 40px;
-            overflow-x: auto;
-      
-            .readingGuide {
-                  
+            z-index: 1300;
+            padding: 12px 16px;
+            width: 440px;
+            max-width: calc(100vw - 24px);
+            max-height: min(600px, calc(100vh - 80px));
+            overflow-y: auto;
+            outline: none;
+            // Kept inside the toolbar, the menu would inherit its one-line,
+            // centred text.
+            white-space: normal;
+            text-align: left;
+
+            h2 {
+                  margin: 4px 0 8px;
+            }
+
+            .readingGuide h2 {
+                  margin-top: 16px;
+            }
+
+            // Two columns: the icon or example, and what it means, so that
+            // every description starts at the same place.
+            .help-table {
+                  width: 100%;
+                  border-collapse: collapse;
+
                   td {
-                        padding: 8px;
+                        padding: 6px 8px;
+                        vertical-align: middle;
                   }
-      
-                  h2 {
-                        margin-top: 16px;
-                        margin-bottom: 10px;
+
+                  td:first-child {
+                        width: 1%;
+                        white-space: nowrap;
+                        text-align: center;
+                  }
+
+                  td + td {
+                        overflow-wrap: anywhere;
+                  }
+
+                  .help-icon svg {
+                        width: 1.2em;
+                        height: 1.2em;
+                        margin: 0 1px;
+                        vertical-align: middle;
                   }
             }
       }

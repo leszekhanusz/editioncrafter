@@ -63,7 +63,7 @@ function insideNoGlossary(domNode) {
   return false
 }
 
-function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
+export function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
   let textCount = 0
   const parserOptions = {
     replace(domNode) {

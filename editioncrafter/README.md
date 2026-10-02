@@ -115,6 +115,24 @@ Required if no `documentInfo` prop specified.
 
 The URL of the IIIF manifest for your document.
 
+### readingGuide
+
+Optional. *(This fork only.)*
+
+The Reading Guide of the help menu, which explains how your edition presents its encoding. An *array* of entries, each with an `example` — HTML written with the same `tei-*` elements as your transcriptions, shown exactly as in one, with your stylesheet applied — and the `meaning` of what it shows. For example:
+
+```js
+const readingGuide = [
+  { example: '<tei-del>word</tei-del>', meaning: 'Deleted in the manuscript' },
+  { example: 'a <tei-add place="above">word</tei-add>', meaning: 'Added above the line' },
+  { example: '<tei-note n="example">An editorial note.</tei-note>', meaning: 'Editorial note: click the asterisk to read it' },
+]
+```
+
+given as `<EditionCrafter readingGuide={readingGuide} … />`, or as a `readingGuide` entry of the configuration an Astro site spreads into the component.
+
+A note needs an `n` (or `id`) attribute to be shown as a marker. Without `readingGuide`, the help menu lists the toolbar buttons only.
+
 ### threePanel
 
 Optional. (Defaults to `false`.)

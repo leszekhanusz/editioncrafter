@@ -8,6 +8,11 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.5
+
+- **Help menu**: the Reading Guide is the project's, not EditionCrafter's: a project gives it through the new `readingGuide` prop, as examples written with the same `tei-*` elements as its transcriptions, so they are shown with the project's own stylesheet (a note becomes the same clickable marker as in the text). Without the prop, the menu shows the toolbar buttons only.
+- **Help menu**: the toolbar buttons are shown with the icons the toolbar uses, icons and descriptions in two aligned columns; the half-hidden close button is gone, and the menu closes on Escape, on a click outside it, or when the focus moves elsewhere. Clicks inside it, such as on a note, no longer close it.
+
 ### 1.3.1-media.4
 
 - **Glossary terms in the text**: in every transcription, a word or phrase that the glossary knows — as a headword or an alternate spelling, whatever its case — can be hovered (or focused with the keyboard) to show its part of speech and meaning in a tooltip, kept within the window. The word is wrapped in a `span.glossary-term` holding a `span.glossary-tooltip` (with `.glossary-tooltip-headword`, `.glossary-tooltip-meaning` and `.glossary-tooltip-pos` inside), so a site can restyle both; by default the word has a dotted underline. Text inside notes is left alone.

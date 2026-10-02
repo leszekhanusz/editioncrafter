@@ -351,13 +351,15 @@ function Navigation(props) {
                     type="button"
                   >
                     <FaQuestionCircle />
-                    <HelpPopper
-                      marginStyle={helpMarginStyle}
-                      anchorEl={helpRef.current}
-                      open={openHelp}
-                      onClose={toggleHelp}
-                    />
                   </button>
+                  {/* Beside the button rather than in it: a click in the menu
+                      would otherwise reach the button and toggle it shut. */}
+                  <HelpPopper
+                    marginStyle={helpMarginStyle}
+                    anchorEl={helpRef.current}
+                    open={openHelp}
+                    onClose={() => setOpenHelp(false)}
+                  />
                 </div>
 
                 <JumpToFolio
@@ -463,7 +465,7 @@ function Navigation(props) {
             marginStyle={helpMarginStyle}
             anchorEl={helpRefNarrow.current}
             open={openHelpNarrow}
-            onClose={toggleHelpNarrow}
+            onClose={() => setOpenHelpNarrow(false)}
           />
         </div>
       </div>

@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.7
+
+- **Linked elements**: the highlight is subtler, the linked elements simply drawn a little darker, with no background or outline.
+
 ### 1.3.1-media.6
 
 - **Linked elements**: hovering an element whose `target` points into the document — a `<metamark target="#add1">`, say — highlights the element it points at, and hovering that element highlights what points at it. Targets may be written `#id` or as a bare id; URLs are ignored. The highlighted elements carry the class `link-highlight`, which a site can restyle.

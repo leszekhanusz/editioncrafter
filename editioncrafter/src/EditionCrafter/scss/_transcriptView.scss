@@ -215,9 +215,8 @@
 	// metamark, or the metamark pointing at it. A site restyles them through
 	// this class.
 	.link-highlight {
-		border-radius: 2px;
-		background-color: rgb(255 213 79 / 55%);
-		outline: 2px solid rgb(255 193 7 / 80%);
+		// Only a little darker: the element keeps its own colours.
+		filter: brightness(0.5);
 	}
 
 	// A TEI <media>: a button where it stands in the text, which opens the

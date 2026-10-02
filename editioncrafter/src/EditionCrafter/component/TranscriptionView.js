@@ -6,6 +6,7 @@ import TagFilterContext from '../context/TagFilterContext'
 import EditorComment from './EditorComment'
 import ErrorBoundary from './ErrorBoundary'
 import { glossaryIndex, withGlossaryTerms } from './GlossaryTerms'
+import { clearLinks, highlightLinks } from './LinkHighlight'
 import MediaPlayer from './MediaPlayer'
 import Navigation from './Navigation'
 import Pagination from './Pagination'
@@ -256,6 +257,8 @@ function TranscriptionView(props) {
             <div
               className="surface grid-mode"
               style={{ gridTemplateAreas: layout }}
+              onMouseOver={highlightLinks}
+              onMouseLeave={clearLinks}
             >
               <Parser
                 html={html}

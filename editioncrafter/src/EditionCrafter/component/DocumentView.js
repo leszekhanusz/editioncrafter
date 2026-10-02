@@ -1,5 +1,5 @@
 import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   useLocation,
@@ -17,6 +17,37 @@ import SplitPaneView from './SplitPaneView'
 import TranscriptionView from './TranscriptionView'
 import XMLView from './XMLView'
 
+const SIDES = ['left', 'right', 'third']
+
+// Where the arrow keys keep their own meaning: fields, open lists and menus,
+// and the image viewer, which pans with them.
+const KEEPS_ARROWS = [
+  'input',
+  'textarea',
+  'select',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[role="listbox"]',
+  '[role="menu"]',
+  '[role="slider"]',
+  '.openseadragon-container',
+].join(', ')
+
+/** The side of the split view an element is in, from the panes' order. */
+function paneSideOf(element) {
+  const pane = element instanceof Element ? element.closest('.split-pane-view > *') : null
+  if (!pane || pane.classList.contains('divider'))
+    return null
+  const panes = [...pane.parentElement.children].filter(child => !child.classList.contains('divider'))
+  return SIDES[panes.indexOf(pane)] ?? null
+}
+
+/** Whether a pane shows a page, which the arrow keys can turn. */
+function showsPage(pane) {
+  return Boolean(pane)
+    && pane.iiifShortID !== '-1'
+    && !['g', 'glossary', 'notes'].includes(pane.transcriptionType)
+}
+
 const paneDefaults = {
   isXMLMode: false,
   width: 0,
@@ -29,6 +60,53 @@ function DocumentView(props) {
   const [right, setRight] = useState(paneDefaults)
   const [third, setThird] = useState(paneDefaults)
   const [singlePaneMode, setSinglePaneMode] = useState(props.containerWidth < 960)
+
+  // What the arrow keys need, kept current on every render: the listener is
+  // installed once.
+  const pagingRef = useRef(null)
+  const lastSideRef = useRef(null)
+
+  // Left and right arrows turn the page, as the arrows of the toolbar do: of
+  // the pane the pointer was last over, or else the first pane showing one.
+  // With the views linked, the other pane follows as it does for a click.
+  useEffect(() => {
+    const onPointerOver = (event) => {
+      const side = paneSideOf(event.target)
+      if (side)
+        lastSideRef.current = side
+    }
+    const onKeyDown = (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')
+        return
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+        return
+      if (event.target instanceof Element && event.target.closest(KEEPS_ARROWS))
+        return
+      const paging = pagingRef.current
+      if (!paging)
+        return
+      const { docView, sides, turn } = paging
+      const side = [lastSideRef.current, ...sides].find(
+        candidate => sides.includes(candidate) && showsPage(docView[candidate]),
+      )
+      if (!side)
+        return
+      const pane = docView[side]
+      const folioID = event.key === 'ArrowRight'
+        ? pane.hasNext && pane.nextFolioShortID
+        : pane.hasPrevious && pane.previousFolioShortID
+      if (!folioID)
+        return
+      event.preventDefault()
+      turn(folioID, side, pane.transcriptionType)
+    }
+    window.addEventListener('pointerover', onPointerOver, true)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('pointerover', onPointerOver, true)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
 
   const params = useParams()
   const navigate = useNavigate()
@@ -538,7 +616,16 @@ function DocumentView(props) {
     right: { ...viewportState('right') },
   }
 
-  if (isWidthUp('md', props.width) && !singlePaneMode) {
+  const splitView = isWidthUp('md', props.width) && !singlePaneMode
+  pagingRef.current = {
+    docView,
+    turn: changeCurrentFolio,
+    sides: splitView
+      ? (props.document.threePanel ? SIDES : ['left', 'right'])
+      : [viewportState('left').iiifShortID === '-1' ? 'left' : 'right'],
+  }
+
+  if (splitView) {
     return (
       <div style={{ height: '100%' }}>
         <SplitPaneView

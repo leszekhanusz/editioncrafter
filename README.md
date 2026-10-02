@@ -8,6 +8,11 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.6
+
+- **Linked elements**: hovering an element whose `target` points into the document — a `<metamark target="#add1">`, say — highlights the element it points at, and hovering that element highlights what points at it. Targets may be written `#id` or as a bare id; URLs are ignored. The highlighted elements carry the class `link-highlight`, which a site can restyle.
+- **Arrow keys**: ← and → turn the page, as the toolbar arrows do, in the pane the pointer was last over (or the first pane showing a page); with the views linked, the other pane follows. The keys keep their own meaning in text fields, open menus and the image viewer.
+
 ### 1.3.1-media.5
 
 - **Help menu**: the Reading Guide is the project's, not EditionCrafter's: a project gives it through the new `readingGuide` prop, as examples written with the same `tei-*` elements as its transcriptions, so they are shown with the project's own stylesheet (a note becomes the same clickable marker as in the text). Without the prop, the menu shows the toolbar buttons only.

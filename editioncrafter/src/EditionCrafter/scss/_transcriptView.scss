@@ -211,6 +211,15 @@
 		text-align: center;
 	}
 
+	// The elements linked to the one under the pointer: the target of a
+	// metamark, or the metamark pointing at it. A site restyles them through
+	// this class.
+	.link-highlight {
+		border-radius: 2px;
+		background-color: rgb(255 213 79 / 55%);
+		outline: 2px solid rgb(255 193 7 / 80%);
+	}
+
 	// A TEI <media>: a button where it stands in the text, which opens the
 	// video (or audio) as a block, its description under it.
 	.media-player {

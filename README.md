@@ -10,6 +10,7 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ### 1.3.1-media.8
 
+- **Music notation**: a TEI `<notatedMusic>` with a `<graphic>` is shown in the transcription as its picture, centred like a figure, its `<desc>` as the picture's alternative text and caption. It keeps a `tei-notatedmusic` element around it for stylesheets to select. Its picture can be a part of the page cut out by an IIIF image server (`…/x,y,w,h/500,/0/default.jpg`).
 - **Additions**: only an addition with `place="above"` is drawn raised and smaller; one written overleaf, in a space or at the end of the line stays on the line, at its size. All additions stay blue.
 - **Page selector**: on an empty page (no transcription) the page selector sits at the same height as on a page of text, under the toolbar rather than behind it.
 

@@ -64,6 +64,15 @@ function insideNoGlossary(domNode) {
   return false
 }
 
+// The text of a parsed node and its descendants.
+function textOf(node) {
+  if (!node)
+    return ''
+  if (node.type === 'text')
+    return node.data
+  return (node.children ?? []).map(textOf).join('')
+}
+
 export function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
   let textCount = 0
   const parserOptions = {
@@ -118,6 +127,27 @@ export function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
               <img src={src} alt={desc || ''} className="inline-image" />
               { desc ? <figcaption>{desc}</figcaption> : null }
             </figure>
+          )
+        }
+        case 'tei-notatedmusic': {
+          // Music notation shown by its picture, as a figure is: the
+          // element keeps its place, for stylesheets to select, and its
+          // description is the picture's alternative text and caption.
+          const graphicEl = domNode.children.find(ch => ch.name === 'tei-graphic')
+          const src = graphicEl?.attribs?.url?.trim()
+          if (!src) {
+            return domNode
+          }
+
+          const descEl = domNode.children.find(ch => ch.name === 'tei-desc')
+          const desc = textOf(descEl).replace(/\s+/g, ' ').trim()
+          return (
+            <tei-notatedmusic data-origname="notatedMusic" facs={domNode.attribs.facs}>
+              <figure className="inline-figure notated-music">
+                <img src={src} alt={desc} className="inline-image" />
+                { desc ? <figcaption>{desc}</figcaption> : null }
+              </figure>
+            </tei-notatedmusic>
           )
         }
         case 'tei-media': {

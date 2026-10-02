@@ -6,7 +6,10 @@
   "description": "A simple digital critical edition publication tool",
   "license": "MIT",
   "homepage": "https://editioncrafter.org/",
-  "repository": "https://github.com/leszekhanusz/editioncrafter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leszekhanusz/editioncrafter.git"
+  },
   "sideEffects": false,
   "main": "dist/editioncrafter.js",
   "publishConfig": {

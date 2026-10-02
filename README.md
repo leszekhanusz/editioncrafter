@@ -8,11 +8,15 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
-### 1.3.1-media.7
+### 1.3.1-media.8
 
 - **Additions**: only an addition with `place="above"` is drawn raised and smaller; one written overleaf, in a space or at the end of the line stays on the line, at its size. All additions stay blue.
+- **Page selector**: on an empty page (no transcription) the page selector sits at the same height as on a page of text, under the toolbar rather than behind it.
+
+### 1.3.1-media.7
+
 - **Linked elements**: the highlight is subtler, the linked elements simply drawn a little darker, with no background or outline.
-- **Page selector**: the empty space above the page selector of a transcription is gone, and on an empty page (no transcription) the selector sits at the same height, under the toolbar rather than behind it.
+- **Page selector**: the empty space above the page selector of a transcription is gone.
 
 ### 1.3.1-media.6
 

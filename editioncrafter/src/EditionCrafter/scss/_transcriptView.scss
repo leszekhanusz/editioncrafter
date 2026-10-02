@@ -182,8 +182,14 @@
 
 	tei-add {
 		color: blue;
-	  vertical-align: super;
-	  font-size: 10pt;
+	}
+
+	// Only an addition written above the line is drawn above it; one written
+	// overleaf, in a space or at the end stays on the line, at its size.
+	tei-add[place~="above"],
+	tei-add[data-tei-place~="above"] {
+		vertical-align: super;
+		font-size: 10pt;
 	}
 
 	tei-seg.active {

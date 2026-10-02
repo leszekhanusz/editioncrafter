@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.9
+
+- **Taller pictures**: a figure or music notation picture in the transcription may now be up to 720 pixels high, instead of 360, so a tall picture is no longer shrunk to a thumbnail.
+
 ### 1.3.1-media.8
 
 - **Music notation**: a TEI `<notatedMusic>` with a `<graphic>` is shown in the transcription as its picture, centred like a figure, its `<desc>` as the picture's alternative text and caption. It keeps a `tei-notatedmusic` element around it for stylesheets to select. Its picture can be a part of the page cut out by an IIIF image server (`…/x,y,w,h/500,/0/default.jpg`).

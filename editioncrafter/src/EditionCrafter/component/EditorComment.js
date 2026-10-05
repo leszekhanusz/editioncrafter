@@ -24,8 +24,9 @@ function EditorComment(props) {
     const style = { maxWidth: 200, padding: '25px 15px 15px 15px' }
     const closeXStyle = { float: 'right', padding: 5, fontStyle: 'bold' }
 
+    // Above the page's menus, which would otherwise cover the note.
     return (
-      <Popper id={props.commentID} open={open} anchorEl={anchorRef}>
+      <Popper id={props.commentID} open={open} anchorEl={anchorRef} style={{ zIndex: 10 }}>
         <Fade in={open}>
           <Paper className="editor-comment-content">
             <div onClick={onClose} style={closeXStyle}>

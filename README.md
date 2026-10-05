@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.11
+
+- **Linked elements bolder**: the highlighted counterpart of a hovered link (a metamark and its addition) is drawn with thicker strokes instead of darker, so it stands out; its glyphs keep their width, so the text does not move under the pointer.
+
 ### 1.3.1-media.10
 
 - **Notes above the menus**: an open note (the `role="tooltip"` box an asterisk opens) has a `z-index` of 10, so it is drawn over the page's menus instead of under them.

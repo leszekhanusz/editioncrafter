@@ -221,8 +221,9 @@
 	// metamark, or the metamark pointing at it. A site restyles them through
 	// this class.
 	.link-highlight {
-		// Only a little darker: the element keeps its own colours.
-		filter: brightness(0.5);
+		// Thicker strokes rather than bold: bold glyphs are wider and would
+		// reflow the line under the pointer. Visible on bold text too.
+		-webkit-text-stroke: 0.04em currentColor;
 	}
 
 	// A TEI <media>: a button where it stands in the text, which opens the

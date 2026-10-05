@@ -586,6 +586,8 @@
   /* p */
   tei-p {
     display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
     text-align: justify;
   }
   *[data-tei-rendition~="#center"] p {

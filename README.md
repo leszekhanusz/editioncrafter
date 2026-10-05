@@ -10,7 +10,6 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ### 1.3.1-media.10
 
-- **Paragraph spacing**: paragraphs (`tei-p`) no longer have a 1em margin above and below them; projects space them in their own stylesheet if they want to.
 - **Notes above the menus**: an open note (the `role="tooltip"` box an asterisk opens) has a `z-index` of 10, so it is drawn over the page's menus instead of under them.
 
 ### 1.3.1-media.9

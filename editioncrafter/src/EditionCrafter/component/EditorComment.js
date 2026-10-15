@@ -26,7 +26,7 @@ function EditorComment(props) {
 
     // Above the page's menus, which would otherwise cover the note.
     return (
-      <Popper id={props.commentID} open={open} anchorEl={anchorRef} style={{ zIndex: 10 }}>
+      <Popper id={`${props.commentID}-content`} open={open} anchorEl={anchorRef} style={{ zIndex: 10 }}>
         <Fade in={open}>
           <Paper className="editor-comment-content" data-type={props.type}>
             <div onClick={onClose} style={closeXStyle}>
@@ -39,13 +39,33 @@ function EditorComment(props) {
     )
   }
 
-  // The note's `type` is kept, so that a site can tell kinds of notes apart:
-  // `.editor-comment[data-type~="…"] .editor-comment-asterisk`.
+  // The note stays a `tei-note`, with its attributes and without its text:
+  // the same stylesheet rules draw it here and in a CETEIcean rendering of
+  // the TEI (TEIEdit's preview), its asterisk included (`tei-note::before`),
+  // and its `type` tells kinds of notes apart. The box it opens is rendered
+  // beside it, not in it, so that a click in the box does not reach it.
   return (
-    <div className="editor-comment" data-type={props.type}>
-      <span className="editor-comment-asterisk" onClick={e => onOpen(e)}>*</span>
+    <>
+      <tei-note
+        data-origname="note"
+        // React (17 and 18) sets the attributes of a custom element as they are
+        // named: `className` would not become `class`.
+        class="editor-comment"
+        id={props.noteId}
+        type={props.type}
+        role="button"
+        tabIndex={0}
+        aria-label="Note"
+        onClick={e => onOpen(e)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onOpen(e)
+          }
+        }}
+      />
       {renderPopper()}
-    </div>
+    </>
   )
 }
 

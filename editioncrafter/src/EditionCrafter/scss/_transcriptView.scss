@@ -206,17 +206,6 @@
 		border-radius: 5px;
 	}
 
-	// A note: an asterisk in the text, which opens it. A site restyles a kind
-	// of note through its type: `.editor-comment[data-type~="…"]`.
-	.editor-comment {
-		display: inline;
-	}
-
-	.editor-comment-asterisk {
-		color: red;
-		font-size: 18pt;
-	}
-
 	.editor-comment-content {
 		word-wrap:break-word;
 	}
@@ -316,3 +305,20 @@
 		}
 	}
 }
+
+// A note: a `tei-note` drawn as an asterisk, which opens it. CETEIcean's
+// rules hide every `tei-note`; this one is shown. The asterisk has no
+// specificity, so that a site's own `tei-note::before` — the rule a CETEIcean
+// rendering of the TEI uses too — restyles it, and its type tells kinds of
+// notes apart: `tei-note[type~="…"]::before`.
+.editioncrafter tei-note.editor-comment {
+	display: inline;
+	cursor: pointer;
+}
+
+:where(.editioncrafter tei-note.editor-comment)::before {
+	content: "*";
+	color: red;
+	font-size: 18pt;
+}
+

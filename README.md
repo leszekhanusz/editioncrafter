@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.13
+
+- **Changes of hand in the reading guide**: a `<tei-handshift new="#id">` given as a reading-guide example shows, on hover, the description of that hand from the document's header, as in the transcription, rather than its bare id.
+
 ### 1.3.1-media.12
 
 - **Changes of hand**: a TEI `<handShift>` is shown in the transcription as a writing hand (✍). Hovering or focusing it shows, in a tooltip like a glossary word's, the description of the hand it changes to: the text of the `<handNote>` of the header that its `new` attribute points at (`new="#mainB"`, or the bare id). The viewer reads the hands from the document's header page, `html/index.html`, which it already loads for the taxonomy. The hand keeps a `tei-handshift` element around it; a site restyles it through the classes `hand-shift` and `hand-shift-tooltip`.

@@ -4,12 +4,13 @@ import Paper from '@material-ui/core/Paper'
 import Popper from '@material-ui/core/Popper'
 import Typography from '@material-ui/core/Typography'
 import Parser from 'html-react-parser'
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useMemo, useRef } from 'react'
 import { BsFillGrid3X3GapFill } from 'react-icons/bs'
 import { FaCode, FaHandPointRight } from 'react-icons/fa'
 import { GoTag } from 'react-icons/go'
 import { HiOutlineBookOpen } from 'react-icons/hi'
 import { IoArrowBackCircleOutline, IoArrowForwardCircleOutline, IoLockOpenOutline } from 'react-icons/io5'
+import { useSelector } from 'react-redux'
 import DocumentPagesIcon from '../icons/DocumentPagesIcon'
 import ReadingGuideContext from './ReadingGuideContext'
 import { htmlToReactParserOptions } from './TranscriptionView'
@@ -44,10 +45,18 @@ const TOOLBAR_BUTTONS = [
 /**
  * A reading-guide example, written with the `tei-*` elements a transcription
  * is made of and shown exactly as in one: the project's stylesheet styles it,
- * and a note becomes the same marker as in the text.
+ * a note becomes the same marker as in the text, and a change of hand shows
+ * the description the header gives the hand it names.
  */
 function GuideExample({ html }) {
-  return Parser(html, htmlToReactParserOptions(null, [], null))
+  const variorum = useSelector(({ document }) => document.variorum)
+  const stored = useSelector(({ document }) => document.hands)
+  // A variorum keeps the hands of each of its documents apart.
+  const hands = useMemo(
+    () => (variorum ? Object.assign({}, ...Object.values(stored ?? {})) : stored),
+    [variorum, stored],
+  )
+  return Parser(html, htmlToReactParserOptions(null, [], null, hands ?? null))
 }
 
 function HelpPopper({ anchorEl, open, onClose, marginStyle }) {

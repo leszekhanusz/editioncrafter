@@ -28,7 +28,7 @@ function EditorComment(props) {
     return (
       <Popper id={props.commentID} open={open} anchorEl={anchorRef} style={{ zIndex: 10 }}>
         <Fade in={open}>
-          <Paper className="editor-comment-content">
+          <Paper className="editor-comment-content" data-type={props.type}>
             <div onClick={onClose} style={closeXStyle}>
               <span className="fa fa-window-close" />
             </div>
@@ -39,11 +39,11 @@ function EditorComment(props) {
     )
   }
 
-  const style = { display: 'inline' }
-  const asteriskStyle = { fontStyle: 'bold', fontSize: '18pt', color: 'red' }
+  // The note's `type` is kept, so that a site can tell kinds of notes apart:
+  // `.editor-comment[data-type~="…"] .editor-comment-asterisk`.
   return (
-    <div style={style}>
-      <span onClick={e => onOpen(e)} style={asteriskStyle}>*</span>
+    <div className="editor-comment" data-type={props.type}>
+      <span className="editor-comment-asterisk" onClick={e => onOpen(e)}>*</span>
       {renderPopper()}
     </div>
   )

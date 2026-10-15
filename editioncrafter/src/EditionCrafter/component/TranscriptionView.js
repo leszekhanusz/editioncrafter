@@ -120,7 +120,7 @@ export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, h
           }
 
           return (
-            <EditorComment commentID={id} text={text} />
+            <EditorComment commentID={id} text={text} type={domNode.attribs.type} />
           )
         }
         case 'tei-figure': {

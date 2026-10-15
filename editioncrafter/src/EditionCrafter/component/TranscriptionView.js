@@ -6,6 +6,7 @@ import TagFilterContext from '../context/TagFilterContext'
 import EditorComment from './EditorComment'
 import ErrorBoundary from './ErrorBoundary'
 import { glossaryIndex, withGlossaryTerms } from './GlossaryTerms'
+import { handId, HandShift } from './HandShift'
 import { clearLinks, highlightLinks } from './LinkHighlight'
 import MediaPlayer from './MediaPlayer'
 import Navigation from './Navigation'
@@ -73,7 +74,7 @@ function textOf(node) {
   return (node.children ?? []).map(textOf).join('')
 }
 
-export function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
+export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, hands = null) {
   let textCount = 0
   const parserOptions = {
     replace(domNode) {
@@ -99,6 +100,15 @@ export function htmlToReactParserOptions(selectedZone, selectedTags, glossary) {
         }
         case 'tei-surface': {
           return setUpForZoneHighlighting(selectedZone, domNode)
+        }
+        case 'tei-handshift': {
+          const pointer = domNode.attribs.new
+          return (
+            <HandShift
+              pointer={pointer}
+              description={hands?.[handId(pointer)] ?? null}
+            />
+          )
         }
         case 'tei-note': {
           const text = domNode.children[0]?.data || ''
@@ -230,6 +240,9 @@ function TranscriptionView(props) {
     searchParams.get('zone'),
     tags,
     glossaryIndex(props.glossary?.glossary),
+    // The hands the header describes, those of the page's document in a
+    // variorum.
+    (document.variorum ? document.hands?.[folio?.doc_id] : document.hands) ?? null,
   )
   const html = transcriptionData && transcriptionData.html
   const layout = transcriptionData && transcriptionData.layout

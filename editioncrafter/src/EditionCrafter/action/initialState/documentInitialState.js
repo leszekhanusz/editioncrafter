@@ -31,5 +31,6 @@ export default function documentInitalState(iiifManifest, documentName, transcri
     folioIndex: {},
     folioByName: {},
     tags: null,
+    hands: null,
   }
 }

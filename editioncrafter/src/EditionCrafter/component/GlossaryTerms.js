@@ -47,9 +47,10 @@ const MARGIN = 8
  * window rather than the word: the transcription pane scrolls, and clips
  * whatever overflows it, so a tooltip hanging from a word near its edge
  * would be cut off. It opens under the word, and moves left, or above the
- * word, when it would run off the screen.
+ * word, when it would run off the screen. A hand shift's tooltip is placed
+ * the same way.
  */
-function placeTooltip(event) {
+export function placeTooltip(event) {
   const term = event.currentTarget
   const tooltip = term.querySelector(':scope > .glossary-tooltip')
   if (!tooltip)

@@ -23,6 +23,15 @@ DocumentActions.loadTags = function loadTags(state, tags) {
   }
 }
 
+// The hands of the manuscript described in the header, by `xml:id`: what a
+// `<handShift new="#id">` changes to. By document in a variorum.
+DocumentActions.loadHands = function loadHands(state, hands) {
+  return {
+    ...state,
+    hands,
+  }
+}
+
 // A page's transcriptions and its image arrive separately, in either order,
 // so what arrives is merged into the page rather than replacing it.
 function updateFolio(state, id, changes) {

@@ -1,10 +1,29 @@
 // Words of a transcription that the glossary explains. A site restyles them
 // through these classes: `.glossary-term` for the word, `.glossary-tooltip`
-// for the explanation shown while it is hovered or focused.
+// for the explanation shown while it is hovered or focused. A change of hand
+// (`.hand-shift`) shows the hand's description in the same tooltip.
 .editioncrafter {
 	.glossary-term {
 		position: relative;
 		border-bottom: 1px dotted #6b5b95;
+		cursor: help;
+
+		&:hover > .glossary-tooltip,
+		&:focus > .glossary-tooltip {
+			display: block;
+		}
+
+		&:focus {
+			outline: 1px solid #6b5b95;
+			outline-offset: 1px;
+		}
+	}
+
+	// A change of hand: a writing hand, which shows the description of the
+	// new hand, in a glossary tooltip, while it is hovered or focused.
+	.hand-shift {
+		position: relative;
+		margin: 0 0.15em;
 		cursor: help;
 
 		&:hover > .glossary-tooltip,

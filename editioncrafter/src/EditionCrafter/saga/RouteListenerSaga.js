@@ -7,11 +7,13 @@ const justDocument = state => state.document
 const justGlossary = state => state.glossary
 const justNotes = state => state.notes
 
-function* parseTagUrl(url) {
+// What the header of a document describes: its taxonomy's categories, and
+// the hands of its manuscript (`<handNote>`), each by its `xml:id`.
+function* parseHeaderUrl(url) {
   const res = yield fetch(url)
 
   if (!res.ok) {
-    return null
+    return { tags: null, hands: null }
   }
 
   const html = yield res.text()
@@ -34,22 +36,34 @@ function* parseTagUrl(url) {
     }
   }
 
-  return documentTags
+  const hands = {}
+  for (const handNote of headerDoc.querySelectorAll('tei-handnote[id]')) {
+    hands[handNote.getAttribute('id')] = handNote.textContent
+      .replace(/\s+/gu, ' ')
+      .trim()
+  }
+
+  return { tags: documentTags, hands }
 }
 
 function* parseTags(headerUrl) {
   if (typeof headerUrl === 'string') {
-    const result = yield parseTagUrl(headerUrl)
-    yield putResolveAction('DocumentActions.loadTags', result)
+    const result = yield parseHeaderUrl(headerUrl)
+    yield putResolveAction('DocumentActions.loadTags', result.tags)
+    yield putResolveAction('DocumentActions.loadHands', result.hands)
   }
   else {
     const tags = {}
+    const hands = {}
 
     for (const docId of Object.keys(headerUrl)) {
-      tags[docId] = yield parseTagUrl(headerUrl[docId])
+      const result = yield parseHeaderUrl(headerUrl[docId])
+      tags[docId] = result.tags
+      hands[docId] = result.hands
     }
 
     yield putResolveAction('DocumentActions.loadTags', tags)
+    yield putResolveAction('DocumentActions.loadHands', hands)
   }
 }
 

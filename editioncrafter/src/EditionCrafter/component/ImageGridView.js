@@ -1,7 +1,40 @@
 import { MenuItem, Select } from '@material-ui/core'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { connect } from 'react-redux'
+
+/** How far outside the view a thumbnail starts loading. */
+const THUMBNAIL_MARGIN = '200px'
+
+/**
+ * A transparent pixel shown until then: an image without a source would be
+ * drawn as its alt text, ignoring its width and height.
+ */
+const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+
+/**
+ * A thumbnail asked for only when it comes near the view, so that opening
+ * the grid does not request every thumbnail at once: some image servers
+ * (Gallica) block bursts of requests. The browser's own `loading="lazy"`
+ * starts much further ahead (about 1250px), hence the observer.
+ */
+function Thumbnail({ src, size, ...props }) {
+  const ref = useRef(null)
+  const [near, setNear] = useState(typeof IntersectionObserver === 'undefined')
+  useEffect(() => {
+    if (near || !ref.current)
+      return undefined
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some(entry => entry.isIntersecting))
+        setNear(true)
+    }, { rootMargin: THUMBNAIL_MARGIN })
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [near])
+  // Its size, known beforehand, keeps the thumbnails not yet loaded in place.
+  const [width, height] = size ?? []
+  return <img ref={ref} src={near ? src : PLACEHOLDER} width={width} height={height} decoding="async" {...props} />
+}
 
 class ImageGridView extends React.Component {
   constructor(props, context) {
@@ -139,7 +172,7 @@ class ImageGridView extends React.Component {
     const thumbs = folios.map((folio, index) => (
       // eslint-disable-next-line react/no-array-index-key
       <li key={`thumb-${index}`} className="thumbnail">
-        <figure><a id={folio.id} onClick={this.onClickThumb.bind(this, folio.id)}><img src={folio.image_thumbnail_url} alt={folio.name} style={{ maxWidth: '130px', maxHeight: '130px' }} onError={({ currentTarget }) => { currentTarget.onerror = null; if (folio.image_zoom_url && currentTarget.src !== `${folio.image_zoom_url.slice(0, -9)}full/full/0/default.jpg`) { currentTarget.src = `${folio.image_zoom_url.slice(0, -9)}full/full/0/default.jpg` } }} /></a></figure>
+        <figure><a id={folio.id} onClick={this.onClickThumb.bind(this, folio.id)}><Thumbnail src={folio.image_thumbnail_url} size={folio.image_thumbnail_size} alt={folio.name} style={{ maxWidth: '130px', maxHeight: '130px' }} onError={({ currentTarget }) => { currentTarget.onerror = null; if (folio.image_zoom_url && currentTarget.src !== `${folio.image_zoom_url.slice(0, -9)}full/full/0/default.jpg`) { currentTarget.src = `${folio.image_zoom_url.slice(0, -9)}full/full/0/default.jpg` } }} /></a></figure>
         <figcaption className="thumbnail-caption">
           {folio.name}
         </figcaption>

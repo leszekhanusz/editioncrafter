@@ -235,6 +235,8 @@ function parseSingleManifest(manifest, transcriptionTypes, document) {
         pageNumber: i,
         image_zoom_url: imageURL,
         image_thumbnail_url: thumbnailURL,
+        // The thumbnail's width and height, when the canvas gives its size.
+        image_thumbnail_size: thumbnailDimensions.every(Number.isFinite) ? thumbnailDimensions : null,
         annotationURLs,
         annotations: canvas.annotations
           ? canvas.annotations.filter(a => a.motivation === 'tagging')

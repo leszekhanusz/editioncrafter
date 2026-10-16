@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.14
+
+- **Thumbnails loaded as they come into view**: the page grid asks for a thumbnail only when it comes within 200px of the view, instead of every thumbnail it shows at once. Image servers that block bursts of requests, such as Gallica behind Cloudflare, then serve them. Each thumbnail keeps its size, taken from the canvas, while it waits.
+
 ### 1.3.1-media.13
 
 - **Changes of hand in the reading guide**: a `<tei-handshift new="#id">` given as a reading-guide example shows, on hover, the description of that hand from the document's header, as in the transcription, rather than its bare id.

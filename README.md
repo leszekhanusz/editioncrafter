@@ -8,6 +8,10 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.15
+
+- **Panel named by its resource**: a transcription panel carries the id of the text resource it shows (the `xml:id` of its `<text>`, also its transcription type), `data-resource-id="…"` on its `.transcriptionViewComponent`, so a site can style one resource only: `[data-resource-id="traduction"] .surface { max-width: 550px; }`.
+
 ### 1.3.1-media.14
 
 - **Thumbnails loaded as they come into view**: the page grid asks for a thumbnail only when it comes within 200px of the view, instead of every thumbnail it shows at once. Image servers that block bursts of requests, such as Gallica behind Cloudflare, then serve them. Each thumbnail keeps its size, taken from the canvas, while it waits.

@@ -272,7 +272,7 @@ function TranscriptionView(props) {
           documentName={document.variorum && folio.doc_id}
         />
         <Pagination side={side} documentView={documentView} documentViewActions={documentViewActions} />
-        <div className="transcriptionViewComponent">
+        <div className="transcriptionViewComponent" data-resource-id={transcriptionType}>
           <div className="transcriptContent">
             <ErrorBoundary>
               <BigRingSpinner delay={3000} color="dark" />
@@ -299,7 +299,7 @@ function TranscriptionView(props) {
         documentName={document.variorum && folio.doc_id}
       />
       <Pagination side={side} documentView={documentView} documentViewActions={documentViewActions} />
-      <div className="transcriptionViewComponent">
+      <div className="transcriptionViewComponent" data-resource-id={transcriptionType}>
         <div className="transcriptContent">
           <ErrorBoundary>
             <div

@@ -1,5 +1,6 @@
 import { all, call, fork, select, takeEvery } from 'redux-saga/effects'
 
+import { linkIndex } from '../component/LinkTarget'
 import { startFolioLoad } from '../model/Folio'
 import { putResolveAction } from '../model/ReduxStore'
 
@@ -8,12 +9,14 @@ const justGlossary = state => state.glossary
 const justNotes = state => state.notes
 
 // What the header of a document describes: its taxonomy's categories, and
-// the hands of its manuscript (`<handNote>`), each by its `xml:id`.
+// the hands of its manuscript (`<handNote>`), each by its `xml:id`. The page
+// renders the whole document, so it also tells where each element is, for
+// the links that point at them, and holds the resources without pages.
 function* parseHeaderUrl(url) {
   const res = yield fetch(url)
 
   if (!res.ok) {
-    return { tags: null, hands: null }
+    return { tags: null, hands: null, links: null }
   }
 
   const html = yield res.text()
@@ -43,7 +46,7 @@ function* parseHeaderUrl(url) {
       .trim()
   }
 
-  return { tags: documentTags, hands }
+  return { tags: documentTags, hands, links: linkIndex(headerDoc) }
 }
 
 function* parseTags(headerUrl) {
@@ -51,6 +54,8 @@ function* parseTags(headerUrl) {
     const result = yield parseHeaderUrl(headerUrl)
     yield putResolveAction('DocumentActions.loadTags', result.tags)
     yield putResolveAction('DocumentActions.loadHands', result.hands)
+    if (result.links)
+      yield putResolveAction('DocumentActions.loadLinks', result.links)
   }
   else {
     const tags = {}

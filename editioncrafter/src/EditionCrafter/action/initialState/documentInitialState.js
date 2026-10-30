@@ -32,5 +32,7 @@ export default function documentInitalState(iiifManifest, documentName, transcri
     folioByName: {},
     tags: null,
     hands: null,
+    linkTargets: null,
+    wholeResources: {},
   }
 }

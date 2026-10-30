@@ -19,7 +19,8 @@ function EditorComment(props) {
   }
 
   const renderPopper = () => {
-    const interpreted = Parser(props.text)
+    // The note's content as parsed with the transcription, or else its text.
+    const interpreted = props.content ?? Parser(props.text ?? '')
     const content = interpreted || `ERROR: Could not find comment for id: ${props.commentID}.`
     const style = { maxWidth: 200, padding: '25px 15px 15px 15px' }
     const closeXStyle = { float: 'right', padding: 5, fontStyle: 'bold' }

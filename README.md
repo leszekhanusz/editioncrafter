@@ -8,6 +8,12 @@ EditionCrafter is an easy-to-use tool for scholars, educators, and research inst
 
 ## Improvements over upstream EditionCrafter
 
+### 1.3.1-media.16
+
+- **Resources without pages**: a `<text>` (or `<sourceDoc>`) with no page break pointing at a surface, such as a bibliography, is offered in the resource list of every page, after the facsimile, named as in `transcriptionTypes` (or by its `xml:id`), and shown whole whatever the page. It is read from the whole document the CLI renders (`html/index.html`), so the CLI needs no change.
+- **Links**: a `<ref>` with a `target` is a link, by a click or Enter. `#id`, or a bare id, opens the element with that `xml:id` in the same panel: on its page, in its resource (or the facsimile for a surface or a zone), or in a resource without pages, scrolled into view and highlighted (`.link-target`); a note is opened. With the views linked, the other panel turns to the same page. An address with a scheme (`https:`, `mailto:`) opens in a new tab. Each link keeps the `tei-ref` element and its attributes, with the class `ref-link`, for stylesheets.
+- **Notes in full**: a note's box shows the whole note, its elements included (a `ref` in it is a link too), instead of only the text before its first element.
+
 ### 1.3.1-media.15
 
 - **Panel named by its resource**: a transcription panel carries the id of the text resource it shows (the `xml:id` of its `<text>`, also its transcription type), `data-resource-id="…"` on its `.transcriptionViewComponent`, so a site can style one resource only: `[data-resource-id="traduction"] .surface { max-width: 550px; }`.

@@ -226,6 +226,20 @@
 		-webkit-text-stroke: 0.04em currentColor;
 	}
 
+	// The element a followed link led to, such as a work of the
+	// bibliography. A site restyles it through this class.
+	.link-target {
+		border-radius: 2px;
+		background-color: #fff3b0;
+		box-shadow: 0 0 0 2px #fff3b0;
+	}
+
+	// The toolbar of a resource shown whole: only the list of resources, on
+	// the right.
+	.whole-resource-toolbar {
+		justify-content: flex-end;
+	}
+
 	// A TEI <media>: a button where it stands in the text, which opens the
 	// video (or audio) as a block, its description under it.
 	.media-player {
@@ -322,3 +336,13 @@
 	font-size: 18pt;
 }
 
+// A `ref` with a `target`: a link to what it points at. Not scoped, since a
+// note opens in a box placed outside the viewer.
+tei-ref.ref-link {
+	cursor: pointer;
+
+	&:hover,
+	&:focus-visible {
+		text-decoration: underline;
+	}
+}

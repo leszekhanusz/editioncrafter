@@ -201,6 +201,10 @@ function Navigation(props) {
   const selectColorStyle = documentView[side].transcriptionType === 'f' ? { color: 'white' } : { color: 'black' }
   const selectClass = documentView[side].transcriptionType === 'f' ? 'dark' : 'light'
   const showButtonsStyle = documentView[side].transcriptionType === 'glossary' ? { visibility: 'hidden' } : { visibility: 'visible' }
+  // The glossary and a resource shown whole have no page: their toolbar
+  // holds no page controls, only the list of resources.
+  const wholeResource = Boolean(document.wholeResources?.[documentView[side].transcriptionType])
+  const withoutPage = documentView[side].transcriptionType === 'glossary' || wholeResource
   const selectContainerStyle = { display: 'flex' } // what's the reason we want this to be hidden sometimes?
   const imageViewActive = documentView[side].transcriptionType === 'f'
   const folioName = document.folioIndex[documentView[side].iiifShortID]?.name
@@ -217,6 +221,15 @@ function Navigation(props) {
   const typeLabel = ttKey => (document.variorum
     ? document.transcriptionTypes[paneFolio?.doc_id]?.[ttKey]
     : document.transcriptionTypes[ttKey])
+  // The resources without pages, offered whatever the page, after the
+  // facsimile; named as configured, or else by their id.
+  const pagedTypes = Object.keys(paneFolio?.annotationURLs ?? {})
+  const wholeTypes = paneFolio
+    ? Object.keys(document.wholeResources ?? {}).filter(ttKey => !pagedTypes.includes(ttKey))
+    : []
+  const wholeItems = wholeTypes.map(ttKey => (
+    <MenuItem value={ttKey} key={ttKey} title={ttKey}>{typeLabel(ttKey) ?? ttKey}</MenuItem>
+  ))
   const typeSelect = (
     <Select
       className={selectClass}
@@ -231,6 +244,7 @@ function Navigation(props) {
       <MenuItem value="f" key="f">
         {DocumentHelper.transcriptionTypeLabels.f}
       </MenuItem>
+      {wholeItems}
       { props.glossary && (
         <MenuItem value="glossary" key="glossary">
           {DocumentHelper.transcriptionTypeLabels.glossary}
@@ -261,7 +275,7 @@ function Navigation(props) {
     <div>
       <div className="navigationComponent">
 
-        { documentView[side].transcriptionType !== 'glossary'
+        { !withoutPage
           ? (
 
               <div id="tool-bar-buttons" className="breadcrumbs" style={showButtonsStyle}>
@@ -374,12 +388,14 @@ function Navigation(props) {
           : (
               // The glossary keeps the resource list: without it, nothing
               // led back to the transcriptions but the browser's Back.
-              <div className="breadcrumbs glossary-toolbar">
-                <AlphabetLinks
-                  onFilterChange={onFilterChange}
-                  value={props.value}
-                  letters={props.glossaryLetters}
-                />
+              <div className={`breadcrumbs glossary-toolbar${wholeResource ? ' whole-resource-toolbar' : ''}`}>
+                {!wholeResource && (
+                  <AlphabetLinks
+                    onFilterChange={onFilterChange}
+                    value={props.value}
+                    letters={props.glossaryLetters}
+                  />
+                )}
                 <div className="toolbar-side toolbar-right">
                   {typeSelect}
                 </div>
@@ -396,7 +412,7 @@ function Navigation(props) {
         />
       )}
       <div className="navigationComponentNarrow">
-        { documentView[side].transcriptionType !== 'glossary'
+        { !withoutPage
           ? (
 
               <div id="tool-bar-buttons" className="breadcrumbsNarrow" style={showButtonsStyle}>
@@ -426,7 +442,7 @@ function Navigation(props) {
 
               </div>
             )
-          : (
+          : !wholeResource && (
               <AlphabetLinks
                 onFilterChange={onFilterChange}
                 value={props.value}
@@ -448,6 +464,7 @@ function Navigation(props) {
             <MenuItem value="f" key="f">
               {DocumentHelper.transcriptionTypeLabels.f}
             </MenuItem>
+            {wholeItems}
             { props.glossary && (
               <MenuItem value="glossary" key="glossary">
                 {DocumentHelper.transcriptionTypeLabels.glossary}

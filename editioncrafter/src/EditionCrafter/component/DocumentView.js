@@ -11,7 +11,9 @@ import EmptyPaneView from './EmptyPaneView'
 import GlossaryView from './GlossaryView'
 import ImageGridView from './ImageGridView'
 import ImageView from './ImageView'
+import { resolveLink } from './LinkTarget'
 import NotesView from './NotesView'
+import ResourceView from './ResourceView'
 import SinglePaneView from './SinglePaneView'
 import SplitPaneView from './SplitPaneView'
 import TranscriptionView from './TranscriptionView'
@@ -41,11 +43,15 @@ function paneSideOf(element) {
   return SIDES[panes.indexOf(pane)] ?? null
 }
 
-/** Whether a pane shows a page, which the arrow keys can turn. */
+/**
+ * Whether a pane shows a page, which the arrow keys can turn: not the
+ * glossary, the notes, or a resource shown whole.
+ */
 function showsPage(pane) {
   return Boolean(pane)
     && pane.iiifShortID !== '-1'
     && !['g', 'glossary', 'notes'].includes(pane.transcriptionType)
+    && !pane.wholeResource
 }
 
 const paneDefaults = {
@@ -60,6 +66,9 @@ function DocumentView(props) {
   const [right, setRight] = useState(paneDefaults)
   const [third, setThird] = useState(paneDefaults)
   const [singlePaneMode, setSinglePaneMode] = useState(props.containerWidth < 960)
+  // By pane, the element the last link followed in it led to; numbered, so
+  // that following the same link again shows it again.
+  const [linkTargets, setLinkTargets] = useState({})
 
   // What the arrow keys need, kept current on every render: the listener is
   // installed once.
@@ -428,6 +437,9 @@ function DocumentView(props) {
     if (transcriptionType === 'notes') {
       return 'NotesView'
     }
+    if (props.document.wholeResources?.[transcriptionType]) {
+      return 'ResourceView'
+    }
     return xmlMode ? 'XMLView' : 'TranscriptionView'
   }
 
@@ -441,6 +453,7 @@ function DocumentView(props) {
         ...side === 'left' ? left : side === 'right' ? right : third,
         iiifShortID: viewport.folioID,
         transcriptionType: viewport.transcriptionType,
+        linkTarget: linkTargets[side] ?? null,
       }
     }
 
@@ -483,7 +496,37 @@ function DocumentView(props) {
       previousFolioShortID: prevID,
       nextFolioShortID: nextID,
       documentID: doc.variorum ? doc.folioIndex[shortID].doc_id : doc.documentName,
+      wholeResource: Boolean(doc.wholeResources?.[viewport.transcriptionType]),
+      linkTarget: linkTargets[side] ?? null,
     }
+  }
+
+  /**
+   * Follows the `target` of a `ref` clicked in a pane, in that pane: to the
+   * page of the resource holding the element it points at, or to the
+   * resource shown whole, where the element is brought into view and
+   * marked. An address with a scheme opens in a new tab.
+   */
+  const followLink = (side, target) => {
+    const link = resolveLink(props.document, target)
+    if (!link)
+      return
+    if (link.url) {
+      window.open(link.url, '_blank', 'noopener,noreferrer')
+      return
+    }
+    setLinkTargets(current => ({
+      ...current,
+      [side]: { id: link.id, nonce: (current[side]?.nonce ?? 0) + 1 },
+    }))
+    if (!link.resource)
+      return
+    const viewport = getViewports()[side]
+    const folioID = link.folioID ?? viewport.folioID
+    if (folioID === '-1')
+      return
+    if (folioID !== viewport.folioID || link.resource !== viewport.transcriptionType)
+      changeCurrentFolio(folioID, side, link.resource)
   }
 
   const documentViewActions = {
@@ -493,6 +536,7 @@ function DocumentView(props) {
     changeTranscriptionType,
     changeCurrentFolio,
     jumpToFolio,
+    followLink,
   }
 
   const renderPane = (side, docView) => {
@@ -522,6 +566,18 @@ function DocumentView(props) {
           documentViewActions={documentViewActions}
           side={side}
           folioID={folioID}
+          transcriptionType={transcriptionType}
+        />
+      )
+    }
+
+    if (viewType === 'ResourceView') {
+      return (
+        <ResourceView
+          key={key}
+          documentView={docView}
+          documentViewActions={documentViewActions}
+          side={side}
           transcriptionType={transcriptionType}
         />
       )

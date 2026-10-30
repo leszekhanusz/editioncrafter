@@ -1,5 +1,5 @@
 import { domToReact } from 'html-react-parser'
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import TagFilterContext from '../context/TagFilterContext'
@@ -8,6 +8,7 @@ import ErrorBoundary from './ErrorBoundary'
 import { glossaryIndex, withGlossaryTerms } from './GlossaryTerms'
 import { handId, HandShift } from './HandShift'
 import { clearLinks, highlightLinks } from './LinkHighlight'
+import { useLinkTarget } from './LinkTarget'
 import MediaPlayer from './MediaPlayer'
 import Navigation from './Navigation'
 import Pagination from './Pagination'
@@ -74,7 +75,36 @@ function textOf(node) {
   return (node.children ?? []).map(textOf).join('')
 }
 
-export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, hands = null) {
+/**
+ * What a `ref` with a `target` becomes: a link, followed by `onFollowLink`
+ * with its target, by a click or from the keyboard. It stays a `tei-ref`,
+ * with its attributes, for stylesheets and the hover highlighting of the
+ * elements it points at.
+ */
+function RefLink({ attribs: { style: _style, ...attribs }, onFollowLink, children }) {
+  const follow = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    onFollowLink(attribs.target)
+  }
+  return (
+    <tei-ref
+      {...attribs}
+      class={[attribs.class, 'ref-link'].filter(Boolean).join(' ')}
+      role="link"
+      tabIndex={0}
+      onClick={follow}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter')
+          follow(event)
+      }}
+    >
+      {children}
+    </tei-ref>
+  )
+}
+
+export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, hands = null, onFollowLink = null) {
   let textCount = 0
   const parserOptions = {
     replace(domNode) {
@@ -110,8 +140,16 @@ export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, h
             />
           )
         }
+        case 'tei-ref': {
+          if (!onFollowLink || !domNode.attribs.target?.trim())
+            return domNode
+          return (
+            <RefLink attribs={domNode.attribs} onFollowLink={onFollowLink}>
+              {domToReact(domNode.children, parserOptions)}
+            </RefLink>
+          )
+        }
         case 'tei-note': {
-          const text = domNode.children[0]?.data || ''
           const id = domNode.attribs.n || domNode.attribs.id
 
           // Not sure what else to do if there's no ID
@@ -119,11 +157,13 @@ export function htmlToReactParserOptions(selectedZone, selectedTags, glossary, h
             return domNode
           }
 
+          // The whole of the note, its elements included: a `ref` in it, to
+          // a work of the bibliography say, is a link there too.
           return (
             <EditorComment
               commentID={id}
               noteId={domNode.attribs.id}
-              text={text}
+              content={domToReact(domNode.children, parserOptions)}
               type={domNode.attribs.type}
             />
           )
@@ -205,6 +245,10 @@ function TranscriptionView(props) {
 
   const { tagsLeft, tagsRight } = useContext(TagFilterContext)
   const tags = side === 'left' ? tagsLeft : tagsRight
+  // The page shown, where a link followed in this pane brings its target
+  // into view.
+  const surfaceRef = useRef(null)
+  useLinkTarget(surfaceRef, documentView[side].linkTarget)
 
   if (folioID === '-1') {
     return (
@@ -248,6 +292,7 @@ function TranscriptionView(props) {
     // The hands the header describes, those of the page's document in a
     // variorum.
     (document.variorum ? document.hands?.[folio?.doc_id] : document.hands) ?? null,
+    target => documentViewActions.followLink(side, target),
   )
   const html = transcriptionData && transcriptionData.html
   const layout = transcriptionData && transcriptionData.layout
@@ -303,6 +348,7 @@ function TranscriptionView(props) {
         <div className="transcriptContent">
           <ErrorBoundary>
             <div
+              ref={surfaceRef}
               className="surface grid-mode"
               style={{ gridTemplateAreas: layout }}
               onMouseOver={highlightLinks}

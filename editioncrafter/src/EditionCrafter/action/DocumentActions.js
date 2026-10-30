@@ -32,6 +32,16 @@ DocumentActions.loadHands = function loadHands(state, hands) {
   }
 }
 
+// Where the elements of the document are, by `xml:id`, for the links that
+// point at them; and the resources without pages, shown whole, by id.
+DocumentActions.loadLinks = function loadLinks(state, { targets, wholeResources }) {
+  return {
+    ...state,
+    linkTargets: targets,
+    wholeResources,
+  }
+}
+
 // A page's transcriptions and its image arrive separately, in either order,
 // so what arrives is merged into the page rather than replacing it.
 function updateFolio(state, id, changes) {

@@ -55,18 +55,24 @@ export function linkIndex(doc) {
   return { targets, wholeResources }
 }
 
+// Schemes a link is never followed to: they would run a script.
+const UNSAFE_SCHEMES = /^(?:javascript|vbscript|data):/iu
+
 /**
  * Where a `target` leads: an address with a scheme (`https:`, `mailto:`) is
- * opened as is; `#id`, or a bare id, is the element of the document with
- * that id, on the page holding it. The first of several pointers is the one
- * followed. Null when it leads nowhere known.
+ * opened as is, one starting with `www.` as https; `#id`, or a bare id, is
+ * the element of the document with that id, on the page holding it. The
+ * first of several pointers is the one followed. Null when it leads nowhere
+ * known, or to a script.
  */
 export function resolveLink(document, target) {
   const token = target?.trim().split(/\s+/u)[0]
-  if (!token)
+  if (!token || UNSAFE_SCHEMES.test(token))
     return null
   if (/^[a-z][a-z\d+.-]*:/iu.test(token))
     return { url: token }
+  if (/^www\./iu.test(token))
+    return { url: `https://${token}` }
   const id = token.startsWith('#') ? token.slice(1) : token
   if (!id || id.includes('/'))
     return null
